@@ -3,6 +3,7 @@ import src.TrainStreamApp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,65 +14,82 @@ public class TrainStreamAppTest {
         List<TrainStreamApp.Bogie> list = new ArrayList<>();
         list.add(new TrainStreamApp.Bogie("Sleeper", 72));
         list.add(new TrainStreamApp.Bogie("AC Chair", 54));
+        list.add(new TrainStreamApp.Bogie("Sleeper", 72));
         list.add(new TrainStreamApp.Bogie("First Class", 24));
+        list.add(new TrainStreamApp.Bogie("AC Chair", 54));
         return list;
     }
 
     @Test
-    void testFilter_CapacityGreaterThanThreshold() {
-        List<TrainStreamApp.Bogie> result =
-                TrainStreamApp.filterByCapacity(createBogies(), 60);
+    void testGrouping_BogiesGroupedByType() {
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(createBogies());
+
+        assertTrue(result.containsKey("Sleeper"));
+        assertTrue(result.containsKey("AC Chair"));
+    }
+
+    @Test
+    void testGrouping_MultipleBogiesInSameGroup() {
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(createBogies());
+
+        assertEquals(2, result.get("Sleeper").size());
+    }
+
+    @Test
+    void testGrouping_DifferentBogieTypes() {
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(createBogies());
+
+        assertEquals(3, result.keySet().size());
+    }
+
+    @Test
+    void testGrouping_EmptyBogieList() {
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(new ArrayList<>());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testGrouping_SingleBogieCategory() {
+        List<TrainStreamApp.Bogie> list = new ArrayList<>();
+        list.add(new TrainStreamApp.Bogie("Sleeper", 72));
+        list.add(new TrainStreamApp.Bogie("Sleeper", 72));
+
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(list);
 
         assertEquals(1, result.size());
-        assertEquals("Sleeper", result.get(0).name);
+        assertEquals(2, result.get("Sleeper").size());
     }
 
     @Test
-    void testFilter_CapacityEqualToThreshold() {
-        List<TrainStreamApp.Bogie> result =
-                TrainStreamApp.filterByCapacity(createBogies(), 72);
+    void testGrouping_MapContainsCorrectKeys() {
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(createBogies());
 
-        assertTrue(result.isEmpty());
+        assertTrue(result.containsKey("Sleeper"));
+        assertTrue(result.containsKey("AC Chair"));
+        assertTrue(result.containsKey("First Class"));
     }
 
     @Test
-    void testFilter_CapacityLessThanThreshold() {
-        List<TrainStreamApp.Bogie> result =
-                TrainStreamApp.filterByCapacity(createBogies(), 70);
+    void testGrouping_GroupSizeValidation() {
+        Map<String, List<TrainStreamApp.Bogie>> result =
+                TrainStreamApp.groupBogiesByType(createBogies());
 
-        assertEquals(1, result.size());
+        assertEquals(2, result.get("AC Chair").size());
     }
 
     @Test
-    void testFilter_MultipleBogiesMatching() {
-        List<TrainStreamApp.Bogie> result =
-                TrainStreamApp.filterByCapacity(createBogies(), 20);
-
-        assertEquals(3, result.size());
-    }
-
-    @Test
-    void testFilter_NoBogiesMatching() {
-        List<TrainStreamApp.Bogie> result =
-                TrainStreamApp.filterByCapacity(createBogies(), 100);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testFilter_EmptyBogieList() {
-        List<TrainStreamApp.Bogie> result =
-                TrainStreamApp.filterByCapacity(new ArrayList<>(), 50);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testFilter_OriginalListUnchanged() {
+    void testGrouping_OriginalListUnchanged() {
         List<TrainStreamApp.Bogie> original = createBogies();
 
-        TrainStreamApp.filterByCapacity(original, 60);
+        TrainStreamApp.groupBogiesByType(original);
 
-        assertEquals(3, original.size());
+        assertEquals(5, original.size());
     }
 }
