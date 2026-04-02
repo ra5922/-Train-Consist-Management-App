@@ -3,7 +3,6 @@ import src.TrainStreamApp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,82 +13,63 @@ public class TrainStreamAppTest {
         List<TrainStreamApp.Bogie> list = new ArrayList<>();
         list.add(new TrainStreamApp.Bogie("Sleeper", 72));
         list.add(new TrainStreamApp.Bogie("AC Chair", 54));
-        list.add(new TrainStreamApp.Bogie("Sleeper", 72));
         list.add(new TrainStreamApp.Bogie("First Class", 24));
-        list.add(new TrainStreamApp.Bogie("AC Chair", 54));
         return list;
     }
 
     @Test
-    void testGrouping_BogiesGroupedByType() {
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(createBogies());
+    void testReduce_TotalSeatCalculation() {
+        int result = TrainStreamApp.calculateTotalCapacity(createBogies());
 
-        assertTrue(result.containsKey("Sleeper"));
-        assertTrue(result.containsKey("AC Chair"));
+        assertEquals(150, result); // 72 + 54 + 24
     }
 
     @Test
-    void testGrouping_MultipleBogiesInSameGroup() {
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(createBogies());
+    void testReduce_MultipleBogiesAggregation() {
+        int result = TrainStreamApp.calculateTotalCapacity(createBogies());
 
-        assertEquals(2, result.get("Sleeper").size());
+        assertEquals(150, result);
     }
 
     @Test
-    void testGrouping_DifferentBogieTypes() {
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(createBogies());
-
-        assertEquals(3, result.keySet().size());
-    }
-
-    @Test
-    void testGrouping_EmptyBogieList() {
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(new ArrayList<>());
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testGrouping_SingleBogieCategory() {
+    void testReduce_SingleBogieCapacity() {
         List<TrainStreamApp.Bogie> list = new ArrayList<>();
         list.add(new TrainStreamApp.Bogie("Sleeper", 72));
-        list.add(new TrainStreamApp.Bogie("Sleeper", 72));
 
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(list);
+        int result = TrainStreamApp.calculateTotalCapacity(list);
 
-        assertEquals(1, result.size());
-        assertEquals(2, result.get("Sleeper").size());
+        assertEquals(72, result);
     }
 
     @Test
-    void testGrouping_MapContainsCorrectKeys() {
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(createBogies());
+    void testReduce_EmptyBogieList() {
+        int result = TrainStreamApp.calculateTotalCapacity(new ArrayList<>());
 
-        assertTrue(result.containsKey("Sleeper"));
-        assertTrue(result.containsKey("AC Chair"));
-        assertTrue(result.containsKey("First Class"));
+        assertEquals(0, result);
     }
 
     @Test
-    void testGrouping_GroupSizeValidation() {
-        Map<String, List<TrainStreamApp.Bogie>> result =
-                TrainStreamApp.groupBogiesByType(createBogies());
+    void testReduce_CorrectCapacityExtraction() {
+        List<TrainStreamApp.Bogie> list = createBogies();
 
-        assertEquals(2, result.get("AC Chair").size());
+        int result = TrainStreamApp.calculateTotalCapacity(list);
+
+        assertEquals(150, result);
     }
 
     @Test
-    void testGrouping_OriginalListUnchanged() {
+    void testReduce_AllBogiesIncluded() {
+        int result = TrainStreamApp.calculateTotalCapacity(createBogies());
+
+        assertEquals(150, result);
+    }
+
+    @Test
+    void testReduce_OriginalListUnchanged() {
         List<TrainStreamApp.Bogie> original = createBogies();
 
-        TrainStreamApp.groupBogiesByType(original);
+        TrainStreamApp.calculateTotalCapacity(original);
 
-        assertEquals(5, original.size());
+        assertEquals(3, original.size());
     }
 }

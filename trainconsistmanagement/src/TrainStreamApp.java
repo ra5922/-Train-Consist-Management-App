@@ -2,8 +2,6 @@ package src;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TrainStreamApp {
 
@@ -22,10 +20,11 @@ public class TrainStreamApp {
         }
     }
 
-    // 🔥 UC9 Method: Group by type (name)
-    public static Map<String, List<Bogie>> groupBogiesByType(List<Bogie> bogies) {
+    // 🔥 UC10 Method: Calculate total seats using reduce()
+    public static int calculateTotalCapacity(List<Bogie> bogies) {
         return bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
     }
 
     public static void main(String[] args) {
@@ -35,16 +34,10 @@ public class TrainStreamApp {
         List<Bogie> bogies = new ArrayList<>();
         bogies.add(new Bogie("Sleeper", 72));
         bogies.add(new Bogie("AC Chair", 54));
-        bogies.add(new Bogie("Sleeper", 72));
         bogies.add(new Bogie("First Class", 24));
-        bogies.add(new Bogie("AC Chair", 54));
 
-        System.out.println("All Bogies:");
-        System.out.println(bogies);
+        int total = calculateTotalCapacity(bogies);
 
-        Map<String, List<Bogie>> grouped = groupBogiesByType(bogies);
-
-        System.out.println("\nGrouped Bogies:");
-        System.out.println(grouped);
+        System.out.println("Total Seating Capacity: " + total);
     }
 }
